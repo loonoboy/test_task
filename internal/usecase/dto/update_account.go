@@ -1,4 +1,4 @@
-package accounts
+package account
 
 type UpdateInput struct {
 	AccessToken  *string
