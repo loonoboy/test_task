@@ -11,12 +11,9 @@ import (
 
 	httpCon "git.amocrm.ru/study_group/in_memory_database/internal/controller/http"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
-	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
-
-	//"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
-	//"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
 )
 
 func main() {
