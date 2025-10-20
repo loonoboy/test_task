@@ -1,7 +1,7 @@
-package account
+package dto
 
-type UpdateInput struct {
-	AccessToken  *string
-	RefreshToken *string
-	Expires      *int
+type UpdateAccount struct {
+	AccessToken  *string `json:"access_token"`
+	RefreshToken *string `json:"refresh_token"`
+	Expires      *int    `json:"expires"`
 }

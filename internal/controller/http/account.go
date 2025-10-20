@@ -1,1 +1,104 @@
 package http
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
+)
+
+type AccountHandler struct {
+	usecase account.AccountUsecaseInterface
+}
+
+func NewAccountHandler(usecase account.AccountUsecaseInterface) *AccountHandler {
+	return &AccountHandler{usecase: usecase}
+}
+
+func (h *AccountHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+	var req entity.Account
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	err := h.usecase.CreateAccount(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *AccountHandler) GetAccount(w http.ResponseWriter, r *http.Request) {
+	id, err := parseIDFromURL(r.URL.Path, "/accounts/")
+	if err != nil {
+		http.Error(w, "invalid account id", http.StatusBadRequest)
+		return
+	}
+	resp, err := h.usecase.GetAccount(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	ep := json.NewEncoder(w)
+	ep.SetIndent("", "  ")
+	ep.Encode(resp)
+}
+
+func (h *AccountHandler) ListAccount(w http.ResponseWriter, r *http.Request) {
+	resp, err := h.usecase.ListAccounts()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	ep := json.NewEncoder(w)
+	ep.SetIndent("", "  ")
+	if err := ep.Encode(resp); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *AccountHandler) UpdateAccount(w http.ResponseWriter, r *http.Request) {
+	id, err := parseIDFromURL(r.URL.Path, "/accounts/")
+	if err != nil {
+		http.Error(w, "invalid account id", http.StatusBadRequest)
+		return
+	}
+	var req dto.UpdateAccount
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	fmt.Println(req)
+	err = h.usecase.UpdateAccount(id, req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+	id, err := parseIDFromURL(r.URL.Path, "/accounts/")
+	if err != nil {
+		http.Error(w, "invalid account id", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.usecase.DeleteAccount(id); err != nil {
+		http.Error(w, "account not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
