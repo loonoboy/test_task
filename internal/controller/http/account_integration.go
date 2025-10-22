@@ -3,10 +3,12 @@ package http
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
+	"github.com/google/uuid"
 )
 
 type AccountIntegrationHandler struct {
@@ -34,7 +36,8 @@ func (h *AccountIntegrationHandler) CreateIntegration(w http.ResponseWriter, r *
 }
 
 func (h *AccountIntegrationHandler) GetIntegration(w http.ResponseWriter, r *http.Request) {
-	id, err := parseIDFromURL(r.URL.Path, "/integrations/")
+	uuidStr := strings.TrimPrefix(r.URL.Path, "/integrations/")
+	id, err := uuid.Parse(uuidStr)
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return
@@ -49,7 +52,7 @@ func (h *AccountIntegrationHandler) GetIntegration(w http.ResponseWriter, r *htt
 	ep.Encode(resp)
 }
 
-func (h *AccountIntegrationHandler) ListIntegration(w http.ResponseWriter, r *http.Request) {
+func (h *AccountIntegrationHandler) ListIntegration(w http.ResponseWriter) {
 	resp, err := h.usecase.ListIntegrations()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -68,7 +71,8 @@ func (h *AccountIntegrationHandler) ListIntegration(w http.ResponseWriter, r *ht
 }
 
 func (h *AccountIntegrationHandler) UpdateIntegration(w http.ResponseWriter, r *http.Request) {
-	id, err := parseIDFromURL(r.URL.Path, "/integrations/")
+	uuidStr := strings.TrimPrefix(r.URL.Path, "/integrations/")
+	id, err := uuid.Parse(uuidStr)
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return
@@ -87,7 +91,8 @@ func (h *AccountIntegrationHandler) UpdateIntegration(w http.ResponseWriter, r *
 }
 
 func (h *AccountIntegrationHandler) DeleteIntegration(w http.ResponseWriter, r *http.Request) {
-	id, err := parseIDFromURL(r.URL.Path, "/integrations/")
+	uuidStr := strings.TrimPrefix(r.URL.Path, "/integrations/")
+	id, err := uuid.Parse(uuidStr)
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return

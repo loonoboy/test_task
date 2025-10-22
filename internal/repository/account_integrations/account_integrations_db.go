@@ -6,16 +6,17 @@ import (
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
+	"github.com/google/uuid"
 )
 
 type IntegrationsRepository struct {
 	mu                  sync.Mutex
-	accountIntegrations map[int]*entity.AccountIntegration
+	accountIntegrations map[uuid.UUID]*entity.AccountIntegration
 }
 
 func NewIntegrationsRepository() *IntegrationsRepository {
 	return &IntegrationsRepository{
-		accountIntegrations: make(map[int]*entity.AccountIntegration),
+		accountIntegrations: make(map[uuid.UUID]*entity.AccountIntegration),
 	}
 }
 
@@ -29,7 +30,7 @@ func (repo *IntegrationsRepository) CreateIntegration(intg *entity.AccountIntegr
 	return nil
 }
 
-func (repo *IntegrationsRepository) GetIntegration(id int) (*entity.AccountIntegration, error) {
+func (repo *IntegrationsRepository) GetIntegration(id uuid.UUID) (*entity.AccountIntegration, error) {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 	intg, ok := repo.accountIntegrations[id]
@@ -49,7 +50,7 @@ func (repo *IntegrationsRepository) ListIntegrations() ([]*entity.AccountIntegra
 	return integrations, nil
 }
 
-func (repo *IntegrationsRepository) UpdateIntegration(id int, update dto.IntegrationUpdate) error {
+func (repo *IntegrationsRepository) UpdateIntegration(id uuid.UUID, update dto.IntegrationUpdate) error {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 
@@ -59,19 +60,19 @@ func (repo *IntegrationsRepository) UpdateIntegration(id int, update dto.Integra
 	}
 
 	if update.SecretKey != nil {
-		intg.SecretKey = *update.SecretKey
+		intg.ClientSecret = *update.SecretKey
 	}
 	if update.RedirectURL != nil {
-		intg.RedirectURL = *update.RedirectURL
+		intg.RedirectURI = *update.RedirectURL
 	}
 	if update.AuthCode != nil {
-		intg.AuthCode = *update.AuthCode
+		intg.Code = *update.AuthCode
 	}
 
 	return nil
 }
 
-func (repo *IntegrationsRepository) DeleteIntegration(id int) error {
+func (repo *IntegrationsRepository) DeleteIntegration(id uuid.UUID) error {
 	repo.mu.Lock()
 	defer repo.mu.Unlock()
 	if _, ok := repo.accountIntegrations[id]; !ok {

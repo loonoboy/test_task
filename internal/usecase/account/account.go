@@ -4,16 +4,24 @@ import (
 	"fmt"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
+	"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
+	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
+	"github.com/google/uuid"
 )
 
 type AccountUsecase struct {
-	repo accounts.AccountRepository
+	accRepo   accounts.AccountRepository
+	intgrRepo account_integrations.IntegrationRepository
+	client    *amocrm.AMOClient
 }
 
-func NewAccountUsecase(repo accounts.AccountRepository) *AccountUsecase {
-	return &AccountUsecase{repo: repo}
+func NewAccountUsecase(accRepo accounts.AccountRepository,
+	intgrRepo account_integrations.IntegrationRepository, client *amocrm.AMOClient) *AccountUsecase {
+	return &AccountUsecase{accRepo: accRepo,
+		intgrRepo: intgrRepo,
+		client:    client}
 }
 
 func (s *AccountUsecase) validateAccount(account entity.Account) error {
@@ -29,28 +37,69 @@ func (s *AccountUsecase) validateAccount(account entity.Account) error {
 	return nil
 }
 
-func (s *AccountUsecase) CreateAccount(account entity.Account) error {
-	if err := s.validateAccount(account); err != nil {
+func (s *AccountUsecase) CreateAccount(authCode, subdomain string, clientID uuid.UUID) error {
+	integration, err := s.intgrRepo.GetIntegration(clientID)
+	if err != nil {
 		return err
 	}
-	if _, err := s.repo.GetAccount(account.AccountID); err == nil {
-		return fmt.Errorf("account with ID %v already exists", account.AccountID)
+	integration.Code = authCode
+
+	account, err := s.client.GetTokens(integration, subdomain)
+	if err != nil {
+		return err
 	}
-	return s.repo.CreateAccount(&account)
+	account.Subdomain = subdomain
+
+	accountID, err := s.client.GetAccountID(account)
+	if err != nil {
+		return err
+	}
+
+	account.AccountID = accountID
+
+	err = s.accRepo.CreateAccount(account)
+	if err != nil {
+		return err
+	}
+	integrationUpdates := &dto.IntegrationUpdate{
+		AccountID: accountID,
+	}
+
+	err = s.intgrRepo.UpdateIntegration(clientID, *integrationUpdates)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *AccountUsecase) GetAccount(id int) (*entity.Account, error) {
-	return s.repo.GetAccount(id)
+	account, err := s.accRepo.GetAccount(id)
+	if err != nil {
+		return nil, err
+	}
+	return account, nil
 }
 
 func (s *AccountUsecase) ListAccounts() ([]*entity.Account, error) {
-	return s.repo.ListAccounts()
+	accounts, err := s.accRepo.ListAccounts()
+	if err != nil {
+		return nil, err
+	}
+	return accounts, nil
 }
 
 func (s *AccountUsecase) UpdateAccount(id int, update dto.UpdateAccount) error {
-	return s.repo.UpdateAccount(id, update)
+	err := s.accRepo.UpdateAccount(id, update)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *AccountUsecase) DeleteAccount(id int) error {
-	return s.repo.DeleteAccount(id)
+	err := s.accRepo.DeleteAccount(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
