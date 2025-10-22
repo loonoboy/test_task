@@ -6,6 +6,7 @@ import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
+	"github.com/google/uuid"
 )
 
 type AccountInegrationUsecase struct {
@@ -17,13 +18,13 @@ func NewAccountInegrationUsecase(repo account_integrations.IntegrationRepository
 }
 
 func (s *AccountInegrationUsecase) validateIntegration(i entity.AccountIntegration) error {
-	if i.AuthCode == "" {
+	if i.Code == "" {
 		return fmt.Errorf("auth_code is empty")
 	}
-	if i.SecretKey == "" {
+	if i.ClientSecret == "" {
 		return fmt.Errorf("secret_key is empty")
 	}
-	if i.RedirectURL == "" {
+	if i.RedirectURI == "" {
 		return fmt.Errorf("redirec_url is empty")
 	}
 	return nil
@@ -39,7 +40,7 @@ func (s *AccountInegrationUsecase) CreateIntegration(i entity.AccountIntegration
 	return s.repo.CreateIntegration(&i)
 }
 
-func (s *AccountInegrationUsecase) GetIntegration(id int) (*entity.AccountIntegration, error) {
+func (s *AccountInegrationUsecase) GetIntegration(id uuid.UUID) (*entity.AccountIntegration, error) {
 	return s.repo.GetIntegration(id)
 }
 
@@ -47,10 +48,10 @@ func (s *AccountInegrationUsecase) ListIntegrations() ([]*entity.AccountIntegrat
 	return s.repo.ListIntegrations()
 }
 
-func (s *AccountInegrationUsecase) UpdateIntegration(id int, update dto.IntegrationUpdate) error {
+func (s *AccountInegrationUsecase) UpdateIntegration(id uuid.UUID, update dto.IntegrationUpdate) error {
 	return s.repo.UpdateIntegration(id, update)
 }
 
-func (s *AccountInegrationUsecase) DeleteIntegration(id int) error {
+func (s *AccountInegrationUsecase) DeleteIntegration(id uuid.UUID) error {
 	return s.repo.DeleteIntegration(id)
 }

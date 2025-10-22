@@ -15,12 +15,18 @@ func NewHandler(account *AccountHandler, integrations *AccountIntegrationHandler
 }
 
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/account", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			h.Account.CreateAccount(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
 	mux.HandleFunc("/accounts", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			h.Account.ListAccount(w, r)
-		case http.MethodPost:
-			h.Account.CreateAccount(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}

@@ -14,13 +14,17 @@ import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
+	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
 )
 
 func main() {
 	accountsRepo := accounts.NewAccountsRepository()
 	integrationsRepo := account_integrations.NewIntegrationsRepository()
 
-	accountService := account.NewAccountUsecase(accountsRepo)
+	httpClient := &http.Client{Timeout: 20 * time.Second}
+	amoClient := amocrm.NewAMOClient(httpClient)
+
+	accountService := account.NewAccountUsecase(accountsRepo, integrationsRepo, amoClient)
 	integrationService := account_integration.NewAccountInegrationUsecase(integrationsRepo)
 
 	accountHandler := httpCon.NewAccountHandler(accountService)

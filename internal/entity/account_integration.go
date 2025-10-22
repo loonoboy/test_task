@@ -1,8 +1,13 @@
 package entity
 
+import (
+	"github.com/google/uuid"
+)
+
 type AccountIntegration struct {
-	ClientID    int    `json:"client_id" validate:"required"`
-	SecretKey   string `json:"secret_key" validate:"required"`
-	RedirectURL string `json:"redirect_url" validate:"required"`
-	AuthCode    string `json:"auth_code" validate:"required"`
+	ClientID     uuid.UUID `json:"client_id"`
+	AccountID    int       `json:"account_id"`
+	ClientSecret string    `json:"client_secret"`
+	RedirectURI  string    `json:"redirect_uri"`
+	Code         string    `json:"code"`
 }

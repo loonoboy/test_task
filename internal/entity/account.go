@@ -5,4 +5,5 @@ type Account struct {
 	AccessToken  string `json:"access_token" validate:"required"`
 	RefreshToken string `json:"refresh_token" validate:"required"`
 	Expires      int    `json:"expires" validate:"required"`
+	Subdomain    string `json:"subdomain"`
 }

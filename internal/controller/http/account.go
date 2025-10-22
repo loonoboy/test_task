@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
+	"github.com/google/uuid"
 )
 
 type AccountHandler struct {
@@ -19,19 +19,38 @@ func NewAccountHandler(usecase account.AccountUsecaseInterface) *AccountHandler 
 }
 
 func (h *AccountHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
-	var req entity.Account
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+	authCode := r.URL.Query().Get("code")
+	domain := r.URL.Query().Get("referer")
+	errorParam := r.URL.Query().Get("error")
+	clientID := r.URL.Query().Get("client_id")
+
+	if errorParam == "access_denied" {
+		http.Error(w, "Access denied for this request", http.StatusForbidden)
 		return
 	}
 
-	err := h.usecase.CreateAccount(req)
+	if authCode == "" {
+		http.Error(w, "authorization authCode is missing", http.StatusBadRequest)
+		return
+	}
+
+	if domain == "" {
+		http.Error(w, "domain is missing", http.StatusBadRequest)
+		return
+	}
+
+	clientUUID, err := uuid.Parse(clientID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "client_id is invalid", http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	err = h.usecase.CreateAccount(authCode, domain, clientUUID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *AccountHandler) GetAccount(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +69,7 @@ func (h *AccountHandler) GetAccount(w http.ResponseWriter, r *http.Request) {
 	ep.Encode(resp)
 }
 
-func (h *AccountHandler) ListAccount(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) ListAccount(w http.ResponseWriter) {
 	resp, err := h.usecase.ListAccounts()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
