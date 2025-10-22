@@ -15,24 +15,17 @@ const (
 )
 
 func (c *AMOClient) GetTokens(integration *entity.AccountIntegration, domain string) (*entity.Account, error) {
-	dto := struct {
-		entity.AccountIntegration
-		GrantType string `json:"grant_type"`
-	}{
+	dto := &response{
 		*integration,
 		"authorization_code",
 	}
-	log.Println("dto", "dto", dto)
 
 	j, err := json.Marshal(dto)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("json", "json", string(j))
-
 	resp, err := c.DoRequest(http.MethodPost, oAuthPath, domain, dto.Code, bytes.NewBuffer(j))
-	log.Println("resp", "resp", resp)
 	if err != nil {
 		log.Println("err", err)
 		return nil, err
@@ -49,8 +42,6 @@ func (c *AMOClient) GetTokens(integration *entity.AccountIntegration, domain str
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println("get tokens", "account", account)
 
 	return &account, nil
 }
