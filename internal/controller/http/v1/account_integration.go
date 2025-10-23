@@ -1,4 +1,4 @@
-package http
+package v1
 
 import (
 	"encoding/json"
@@ -52,7 +52,7 @@ func (h *AccountIntegrationHandler) GetIntegration(w http.ResponseWriter, r *htt
 	ep.Encode(resp)
 }
 
-func (h *AccountIntegrationHandler) ListIntegration(w http.ResponseWriter) {
+func (h *AccountIntegrationHandler) ListIntegration(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.usecase.ListIntegrations()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

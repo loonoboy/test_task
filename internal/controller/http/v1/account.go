@@ -1,6 +1,7 @@
-package http
+package v1
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -69,22 +70,23 @@ func (h *AccountHandler) GetAccount(w http.ResponseWriter, r *http.Request) {
 	ep.Encode(resp)
 }
 
-func (h *AccountHandler) ListAccount(w http.ResponseWriter) {
+func (h *AccountHandler) ListAccount(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.usecase.ListAccounts()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	ep := json.NewEncoder(w)
-	ep.SetIndent("", "  ")
-	if err := ep.Encode(resp); err != nil {
-		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(resp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.Write(buf.Bytes())
 }
 
 func (h *AccountHandler) UpdateAccount(w http.ResponseWriter, r *http.Request) {

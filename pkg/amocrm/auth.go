@@ -27,7 +27,6 @@ func (c *AMOClient) GetTokens(integration *entity.AccountIntegration, domain str
 
 	resp, err := c.DoRequest(http.MethodPost, oAuthPath, domain, dto.Code, bytes.NewBuffer(j))
 	if err != nil {
-		log.Println("err", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
