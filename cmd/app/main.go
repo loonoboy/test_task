@@ -9,11 +9,12 @@ import (
 	"syscall"
 	"time"
 
-	httpCon "git.amocrm.ru/study_group/in_memory_database/internal/controller/http"
+	"git.amocrm.ru/study_group/in_memory_database/internal/controller/http/v1"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/contact"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
 )
 
@@ -26,19 +27,20 @@ func main() {
 
 	accountService := account.NewAccountUsecase(accountsRepo, integrationsRepo, amoClient)
 	integrationService := account_integration.NewAccountInegrationUsecase(integrationsRepo)
+	contactServic := contact.NewContactsService(amoClient, accountsRepo)
 
-	accountHandler := httpCon.NewAccountHandler(accountService)
-	integrationHandler := httpCon.NewAccountIntegrationHandler(integrationService)
+	accountHandler := v1.NewAccountHandler(accountService)
+	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
+	contactHandler := v1.NewContactHandler(contactServic)
 
-	h := httpCon.NewHandler(accountHandler, integrationHandler)
-	mux := http.NewServeMux()
-	h.RegisterRoutes(mux)
+	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler)
+	router := v1.NewRouter(handler)
 
 	addr := "localhost:8080"
 
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: router,
 	}
 
 	stop := make(chan os.Signal, 1)

@@ -3,7 +3,6 @@ package amocrm
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -27,7 +26,6 @@ func (c *AMOClient) DoRequest(method, path, domain, accessToken string, body io.
 	if err != nil {
 		return nil, err
 	}
-	log.Println(url)
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "amoCRM-oAuth-client/1.0")
