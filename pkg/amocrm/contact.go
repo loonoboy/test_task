@@ -8,7 +8,7 @@ import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 )
 
-const contactsPath = "api/v4/contacts"
+const contactsPath = "api/v4/contact"
 
 func (c *AMOClient) GetContacts(account *entity.Account) ([]entity.Contact, error) {
 	resp, err := c.DoRequest(http.MethodGet, contactsPath, account.Subdomain, account.AccessToken, nil)

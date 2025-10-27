@@ -4,12 +4,14 @@ type Handler struct {
 	Account      *AccountHandler
 	Integrations *AccountIntegrationHandler
 	Contacts     *ContactHandler
+	AmoClient    *AmoClientHandler
 }
 
-func NewHandler(account *AccountHandler, integrations *AccountIntegrationHandler, contact *ContactHandler) *Handler {
+func NewHandler(account *AccountHandler, integrations *AccountIntegrationHandler, contacts *ContactHandler, amoClient *AmoClientHandler) *Handler {
 	return &Handler{
 		Account:      account,
 		Integrations: integrations,
-		Contacts:     contact,
+		Contacts:     contacts,
+		AmoClient:    amoClient,
 	}
 }

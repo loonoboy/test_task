@@ -10,30 +10,38 @@ import (
 	"time"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/controller/http/v1"
-	"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
-	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
+	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/account_integrations"
+	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/accounts"
+	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/contacts"
+	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/init_mysql"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/amo_client"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/contact"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
 )
 
 func main() {
-	accountsRepo := accounts.NewAccountsRepository()
-	integrationsRepo := account_integrations.NewIntegrationsRepository()
+
+	db := init_mysql.NewConnectMySQL()
+	accountsRepo := accounts.NewAccountRepoMySQL(db)
+	integrationsRepo := account_integrations.NewIntegrationRepoMySQL(db)
+	contactsRepo := contacts.NewContactRepoMySQL(db)
 
 	httpClient := &http.Client{Timeout: 20 * time.Second}
 	amoClient := amocrm.NewAMOClient(httpClient)
 
-	accountService := account.NewAccountUsecase(accountsRepo, integrationsRepo, amoClient)
+	accountService := account.NewAccountUsecase(accountsRepo)
 	integrationService := account_integration.NewAccountInegrationUsecase(integrationsRepo)
-	contactServic := contact.NewContactsService(amoClient, accountsRepo)
+	contactService := contact.NewContactUsecase(contactsRepo)
+	amoClientService := amo_client.NewAmoClientServiceService(amoClient, accountsRepo)
 
 	accountHandler := v1.NewAccountHandler(accountService)
 	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
-	contactHandler := v1.NewContactHandler(contactServic)
+	contactHandler := v1.NewContactHandler(contactService)
+	amoClientHandler := v1.NewAmoClientHandler(amoClientService)
 
-	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler)
+	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler, amoClientHandler)
 	router := v1.NewRouter(handler)
 
 	addr := "localhost:8080"

@@ -5,9 +5,10 @@ import (
 )
 
 type AccountIntegration struct {
-	ClientID     uuid.UUID `json:"client_id"`
-	AccountID    int       `json:"account_id"`
-	ClientSecret string    `json:"client_secret"`
-	RedirectURI  string    `json:"redirect_uri"`
-	Code         string    `json:"code"`
+	ID           int       `gorm:"primaryKey;autoIncrement"`
+	ClientID     uuid.UUID `gorm:"type:char(36);not null" json:"client_id"`
+	AccountID    int       `gorm:"not null;index;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"account_id"`
+	ClientSecret string    `gorm:"type:text;not null" json:"client_secret"`
+	RedirectURI  string    `gorm:"type:text;not null" json:"redirect_uri"`
+	Code         string    `gorm:"type:text" json:"code"`
 }

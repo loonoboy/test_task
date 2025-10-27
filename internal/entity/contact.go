@@ -1,24 +1,16 @@
 package entity
 
 type Contact struct {
-	ID                int           `json:"id"`
-	Name              string        `json:"name"`
-	FirstName         string        `json:"first_name"`
-	LastName          string        `json:"last_name"`
-	ResponsibleUserID int           `json:"responsible_user_id"`
-	GroupID           int           `json:"group_id"`
-	CreatedBy         int           `json:"created_by"`
-	UpdatedBy         int           `json:"updated_by"`
-	CreatedAt         int           `json:"created_at"`
-	UpdatedAt         int           `json:"updated_at"`
-	IsDeleted         bool          `json:"is_deleted"`
-	IsUnsorted        bool          `json:"is_unsorted"`
-	AccountID         int           `json:"account_id"`
-	CustomFields      []CustomField `json:"custom_fields_values"`
+	ContactID int    `json:"contact_id" validate:"required" gorm:"primaryKey;autoIncrement:false"`
+	AccountID int    `json:"account_id" validate:"required" gorm:"not null;index;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Name      string `json:"name" validate:"required" gorm:"type:varchar(255) CHARACTER SET utf8mb4;not null"`
+	Email     string `json:"email" validate:"required" gorm:"type:varchar(255) CHARACTER SET utf8mb4;not null"`
 }
 
 type ContactsResp struct {
-	Embedded struct {
-		Contacts []Contact `json:"contacts"`
-	} `json:"_embedded"`
+	Embedded ContactsEmbedded `json:"_embedded"`
+}
+
+type ContactsEmbedded struct {
+	Contacts []Contact `json:"contact"`
 }

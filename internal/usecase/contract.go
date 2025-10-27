@@ -21,3 +21,11 @@ type IntegrationRepository interface {
 	UpdateIntegration(id uuid.UUID, update dto.IntegrationUpdate) error
 	DeleteIntegration(id uuid.UUID) error
 }
+
+type ContactRepository interface {
+	CreateContact(c *entity.Contact) error
+	GetContact(id int) (*entity.Contact, error)
+	ListContacts(id int) ([]*entity.Contact, error)
+	UpdateContact(id int, update dto.UpdateContact) error
+	DeleteContact(id int) error
+}
