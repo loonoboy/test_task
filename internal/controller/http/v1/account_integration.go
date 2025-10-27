@@ -6,16 +6,15 @@ import (
 	"strings"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
-	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 	"github.com/google/uuid"
 )
 
 type AccountIntegrationHandler struct {
-	usecase account_integration.AccountIntegrationUsecaseInterface
+	usecase AccountIntegrationUsecaseInterface
 }
 
-func NewAccountIntegrationHandler(usecase account_integration.AccountIntegrationUsecaseInterface) *AccountIntegrationHandler {
+func NewAccountIntegrationHandler(usecase AccountIntegrationUsecaseInterface) *AccountIntegrationHandler {
 	return &AccountIntegrationHandler{usecase: usecase}
 }
 

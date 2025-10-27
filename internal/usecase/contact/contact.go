@@ -2,16 +2,16 @@ package contact
 
 import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
-	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
 )
 
 type ContactsService struct {
-	accountsRepository accounts.AccountRepository
+	accountsRepository usecase.AccountRepository
 	client             *amocrm.AMOClient
 }
 
-func NewContactsService(client *amocrm.AMOClient, repository accounts.AccountRepository) *ContactsService {
+func NewContactsService(client *amocrm.AMOClient, repository usecase.AccountRepository) *ContactsService {
 	return &ContactsService{client: client, accountsRepository: repository}
 }
 

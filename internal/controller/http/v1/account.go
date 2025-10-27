@@ -6,16 +6,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 	"github.com/google/uuid"
 )
 
 type AccountHandler struct {
-	usecase account.AccountUsecaseInterface
+	usecase AccountUsecaseInterface
 }
 
-func NewAccountHandler(usecase account.AccountUsecaseInterface) *AccountHandler {
+func NewAccountHandler(usecase AccountUsecaseInterface) *AccountHandler {
 	return &AccountHandler{usecase: usecase}
 }
 

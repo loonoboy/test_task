@@ -4,21 +4,20 @@ import (
 	"fmt"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
-	"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
-	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
 	"github.com/google/uuid"
 )
 
 type AccountUsecase struct {
-	accRepo   accounts.AccountRepository
-	intgrRepo account_integrations.IntegrationRepository
+	accRepo   usecase.AccountRepository
+	intgrRepo usecase.IntegrationRepository
 	client    *amocrm.AMOClient
 }
 
-func NewAccountUsecase(accRepo accounts.AccountRepository,
-	intgrRepo account_integrations.IntegrationRepository, client *amocrm.AMOClient) *AccountUsecase {
+func NewAccountUsecase(accRepo usecase.AccountRepository,
+	intgrRepo usecase.IntegrationRepository, client *amocrm.AMOClient) *AccountUsecase {
 	return &AccountUsecase{accRepo: accRepo,
 		intgrRepo: intgrRepo,
 		client:    client}

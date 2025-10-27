@@ -5,15 +5,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/contact"
 	"github.com/gorilla/mux"
 )
 
 type ContactHandler struct {
-	usecase contact.ContactUsecaseInterface
+	usecase ContactUsecaseInterface
 }
 
-func NewContactHandler(usecase contact.ContactUsecaseInterface) *ContactHandler {
+func NewContactHandler(usecase ContactUsecaseInterface) *ContactHandler {
 	return &ContactHandler{usecase: usecase}
 }
 
