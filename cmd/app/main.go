@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/controller/http/v1"
-	"git.amocrm.ru/study_group/in_memory_database/internal/repository/account_integrations"
-	"git.amocrm.ru/study_group/in_memory_database/internal/repository/accounts"
+	"git.amocrm.ru/study_group/in_memory_database/internal/repository/in_memory/account_integrations"
+	"git.amocrm.ru/study_group/in_memory_database/internal/repository/in_memory/accounts"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/contact"
