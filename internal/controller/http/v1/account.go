@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
-	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type AccountHandler struct {
@@ -19,47 +21,30 @@ func NewAccountHandler(usecase AccountUsecaseInterface) *AccountHandler {
 }
 
 func (h *AccountHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
-	authCode := r.URL.Query().Get("code")
-	domain := r.URL.Query().Get("referer")
-	errorParam := r.URL.Query().Get("error")
-	clientID := r.URL.Query().Get("client_id")
-
-	if errorParam == "access_denied" {
-		http.Error(w, "Access denied for this request", http.StatusForbidden)
+	var req entity.Account
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if authCode == "" {
-		http.Error(w, "authorization authCode is missing", http.StatusBadRequest)
-		return
-	}
-
-	if domain == "" {
-		http.Error(w, "domain is missing", http.StatusBadRequest)
-		return
-	}
-
-	clientUUID, err := uuid.Parse(clientID)
+	err := h.usecase.CreateAccount(req)
 	if err != nil {
-		http.Error(w, "client_id is invalid", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = h.usecase.CreateAccount(authCode, domain, clientUUID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *AccountHandler) GetAccount(w http.ResponseWriter, r *http.Request) {
-	id, err := parseIDFromURL(r.URL.Path, "/accounts/")
+	vars := mux.Vars(r)
+
+	accountID, err := strconv.Atoi(vars["accountID"])
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return
 	}
-	resp, err := h.usecase.GetAccount(id)
+	resp, err := h.usecase.GetAccount(accountID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -89,7 +74,9 @@ func (h *AccountHandler) ListAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AccountHandler) UpdateAccount(w http.ResponseWriter, r *http.Request) {
-	id, err := parseIDFromURL(r.URL.Path, "/accounts/")
+	vars := mux.Vars(r)
+
+	accountID, err := strconv.Atoi(vars["accountID"])
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return
@@ -100,7 +87,7 @@ func (h *AccountHandler) UpdateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println(req)
-	err = h.usecase.UpdateAccount(id, req)
+	err = h.usecase.UpdateAccount(accountID, req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -109,13 +96,15 @@ func (h *AccountHandler) UpdateAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	id, err := parseIDFromURL(r.URL.Path, "/accounts/")
+	vars := mux.Vars(r)
+
+	accountID, err := strconv.Atoi(vars["accountID"])
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.usecase.DeleteAccount(id); err != nil {
+	if err := h.usecase.DeleteAccount(accountID); err != nil {
 		http.Error(w, "account not found", http.StatusNotFound)
 		return
 	}

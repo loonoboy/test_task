@@ -3,11 +3,11 @@ package v1
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type AccountIntegrationHandler struct {
@@ -35,8 +35,9 @@ func (h *AccountIntegrationHandler) CreateIntegration(w http.ResponseWriter, r *
 }
 
 func (h *AccountIntegrationHandler) GetIntegration(w http.ResponseWriter, r *http.Request) {
-	uuidStr := strings.TrimPrefix(r.URL.Path, "/integrations/")
-	id, err := uuid.Parse(uuidStr)
+	vars := mux.Vars(r)
+
+	id, err := uuid.Parse(vars["integrationID"])
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return
@@ -70,8 +71,8 @@ func (h *AccountIntegrationHandler) ListIntegration(w http.ResponseWriter, r *ht
 }
 
 func (h *AccountIntegrationHandler) UpdateIntegration(w http.ResponseWriter, r *http.Request) {
-	uuidStr := strings.TrimPrefix(r.URL.Path, "/integrations/")
-	id, err := uuid.Parse(uuidStr)
+	vars := mux.Vars(r)
+	id, err := uuid.Parse(vars["integrationID"])
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return
@@ -90,8 +91,8 @@ func (h *AccountIntegrationHandler) UpdateIntegration(w http.ResponseWriter, r *
 }
 
 func (h *AccountIntegrationHandler) DeleteIntegration(w http.ResponseWriter, r *http.Request) {
-	uuidStr := strings.TrimPrefix(r.URL.Path, "/integrations/")
-	id, err := uuid.Parse(uuidStr)
+	vars := mux.Vars(r)
+	id, err := uuid.Parse(vars["integrationID"])
 	if err != nil {
 		http.Error(w, "invalid account id", http.StatusBadRequest)
 		return

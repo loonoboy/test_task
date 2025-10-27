@@ -1,6 +1,8 @@
 module git.amocrm.ru/study_group/in_memory_database
 
-go 1.18
+go 1.24.0
+
+toolchain go1.24.9
 
 require (
 	github.com/google/uuid v1.6.0

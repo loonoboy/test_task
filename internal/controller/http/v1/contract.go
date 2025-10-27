@@ -7,7 +7,7 @@ import (
 )
 
 type AccountUsecaseInterface interface {
-	CreateAccount(authCode, subdomain string, clientID uuid.UUID) error
+	CreateAccount(i entity.Account) error
 	GetAccount(id int) (*entity.Account, error)
 	ListAccounts() ([]*entity.Account, error)
 	UpdateAccount(id int, account dto.UpdateAccount) error
@@ -22,6 +22,14 @@ type AccountIntegrationUsecaseInterface interface {
 	DeleteIntegration(id uuid.UUID) error
 }
 
-type ContactUsecaseInterface interface {
-	GetAllContacts(accountID int) ([]entity.Contact, error)
+type AmoClientUsecaseInterface interface {
+	SaveAccountInfo(authCode, subdomain string, clientID uuid.UUID) error
+}
+
+type ContactsUsecaseInterface interface {
+	CreateContact(i entity.Contact) error
+	GetContact(id int) (*entity.Contact, error)
+	ListContacts(id int) ([]*entity.Contact, error)
+	UpdateContact(id int, contact dto.UpdateContact) error
+	DeleteContact(id int) error
 }

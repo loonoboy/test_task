@@ -12,5 +12,5 @@ type ContactsResp struct {
 }
 
 type ContactsEmbedded struct {
-	Contacts []Contact `json:"contacts"`
+	Contacts []Contact `json:"contact"`
 }
