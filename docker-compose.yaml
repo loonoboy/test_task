@@ -42,7 +42,7 @@ services:
       - PMA_PASSWORD=${DB_PASSWORD}
     ports:
       - 9090:80
-    restart: always
+    restart: on-failure
     networks:
       - fullstack
 
