@@ -3,7 +3,6 @@ package v1
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -93,7 +92,6 @@ func (h *ContactHandler) UpdateContact(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println(req)
 	err = h.usecase.UpdateContact(contactID, req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
