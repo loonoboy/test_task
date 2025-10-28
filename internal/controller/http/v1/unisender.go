@@ -16,7 +16,7 @@ func NewUnisenderHandler(usecase UnisenderUsecaseInterface) *UnisenderHandler {
 	return &UnisenderHandler{usecase: usecase}
 }
 
-func (h *UnisenderHandler) SaveUnisenderKey(w http.ResponseWriter, r *http.Request) {
+func (h *UnisenderHandler) SynchronizationContacts(w http.ResponseWriter, r *http.Request) {
 	var update dto.UpdateAccount
 
 	if err := r.ParseForm(); err != nil {
@@ -35,5 +35,7 @@ func (h *UnisenderHandler) SaveUnisenderKey(w http.ResponseWriter, r *http.Reque
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	h.usecase.SaveExistingContacts(AccountID)
 	w.WriteHeader(http.StatusOK)
 }

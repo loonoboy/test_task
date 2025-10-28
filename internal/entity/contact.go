@@ -5,6 +5,7 @@ type Contact struct {
 	AccountID int    `json:"account_id" validate:"required" gorm:"not null;index;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Name      string `json:"name" validate:"required" gorm:"type:varchar(255) CHARACTER SET utf8mb4;not null"`
 	Email     string `json:"email" validate:"required" gorm:"type:varchar(255) CHARACTER SET utf8mb4;not null;unique"`
+	IsSynced  bool   `json:"is_synced" validate:"required" gorm:"type:bool;not null;default:false"`
 }
 
 type ContactsResp struct {

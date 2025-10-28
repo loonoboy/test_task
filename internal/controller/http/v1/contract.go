@@ -36,4 +36,5 @@ type ContactsUsecaseInterface interface {
 
 type UnisenderUsecaseInterface interface {
 	SaveUnisenderKey(id int, update dto.UpdateAccount) error
+	SaveExistingContacts(accountID int) error
 }
