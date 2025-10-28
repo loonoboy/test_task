@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/controller/http/v1"
+	"git.amocrm.ru/study_group/in_memory_database/internal/provider"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/account_integrations"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/accounts"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/contacts"
@@ -31,12 +32,13 @@ func main() {
 
 	httpClient := &http.Client{Timeout: 20 * time.Second}
 	amoClient := amocrm.NewAMOClient(httpClient)
+	unisenderProvider := provider.NewUnisenderProvider()
 
 	accountService := account.NewAccountUsecase(accountsRepo)
 	integrationService := account_integration.NewAccountInegrationUsecase(integrationsRepo)
 	contactService := contact.NewContactUsecase(contactsRepo)
 	amoClientService := amo_client.NewAmoClientServiceService(amoClient, accountsRepo)
-	unisenderService := unisender.NewUnisenderService(accountsRepo, contactsRepo)
+	unisenderService := unisender.NewUnisenderService(accountsRepo, contactsRepo, unisenderProvider)
 
 	accountHandler := v1.NewAccountHandler(accountService)
 	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
