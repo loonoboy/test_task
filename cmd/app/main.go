@@ -22,6 +22,7 @@ import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/amo_client"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/contact"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/queue"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/unisender"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
 	"google.golang.org/grpc"
@@ -48,11 +49,16 @@ func main() {
 	gRPCServerStruct := server.NewGRPCServer(accountService)
 	proto.RegisterDeleteAccountServiceServer(gserver, gRPCServerStruct)
 
+	queue, err := queue.NewBeanstalkProducer("ddev-beanstalkd:11300")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	accountHandler := v1.NewAccountHandler(accountService)
 	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
 	contactHandler := v1.NewContactHandler(contactService)
 	amoClientHandler := v1.NewAmoClientHandler(amoClientService)
-	unisenderHandler := v1.NewUnisenderHandler(unisenderService)
+	unisenderHandler := v1.NewUnisenderHandler(unisenderService, queue)
 
 	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler, amoClientHandler, unisenderHandler)
 	router := v1.NewRouter(handler)

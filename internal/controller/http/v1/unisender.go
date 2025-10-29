@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -11,10 +13,14 @@ import (
 
 type UnisenderHandler struct {
 	usecase controller.UnisenderUsecaseInterface
+	queue   controller.QueueInterface
 }
 
-func NewUnisenderHandler(usecase controller.UnisenderUsecaseInterface) *UnisenderHandler {
-	return &UnisenderHandler{usecase: usecase}
+func NewUnisenderHandler(usecase controller.UnisenderUsecaseInterface, queue controller.QueueInterface) *UnisenderHandler {
+	return &UnisenderHandler{
+		usecase: usecase,
+		queue:   queue,
+	}
 }
 
 func (h *UnisenderHandler) SynchronizationContacts(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +36,11 @@ func (h *UnisenderHandler) SynchronizationContacts(w http.ResponseWriter, r *htt
 	idStr := r.FormValue("account_id")
 	if idStr != "" {
 		AccountID, _ = strconv.Atoi(idStr)
+	}
+	body, _ := json.Marshal(map[string]int{"account_id": AccountID})
+	log.Println("adding a job for first sync for account ", AccountID)
+	if h.queue.AddJob(body, "first_sync") != nil {
+		log.Fatal("error adding job")
 	}
 	err := h.usecase.SaveUnisenderKey(AccountID, update)
 	if err != nil {

@@ -38,3 +38,7 @@ type UnisenderUsecaseInterface interface {
 	SaveUnisenderKey(id int, update dto.UpdateAccount) error
 	SaveExistingContacts(accountID int) error
 }
+
+type QueueInterface interface {
+	AddJob(data []byte, tubeName string) error
+}
