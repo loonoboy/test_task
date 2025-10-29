@@ -19,8 +19,14 @@ type AmoClientService struct {
 	client      *amocrm.AMOClient
 }
 
-func NewAmoClientServiceService(client *amocrm.AMOClient, repository usecase.AccountRepository) *AmoClientService {
-	return &AmoClientService{client: client, accRepo: repository}
+func NewAmoClientServiceService(client *amocrm.AMOClient, repository usecase.AccountRepository,
+	intgrRepo usecase.IntegrationRepository, contactRepo usecase.ContactRepository) *AmoClientService {
+	return &AmoClientService{
+		client:      client,
+		accRepo:     repository,
+		intgrRepo:   intgrRepo,
+		contactRepo: contactRepo,
+	}
 }
 
 func (s *AmoClientService) SaveAccountInfo(authCode, subdomain string, clientID uuid.UUID) error {
