@@ -5,14 +5,15 @@ import (
 	"net/http"
 	"strconv"
 
+	"git.amocrm.ru/study_group/in_memory_database/internal/controller"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 )
 
 type UnisenderHandler struct {
-	usecase UnisenderUsecaseInterface
+	usecase controller.UnisenderUsecaseInterface
 }
 
-func NewUnisenderHandler(usecase UnisenderUsecaseInterface) *UnisenderHandler {
+func NewUnisenderHandler(usecase controller.UnisenderUsecaseInterface) *UnisenderHandler {
 	return &UnisenderHandler{usecase: usecase}
 }
 

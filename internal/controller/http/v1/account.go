@@ -6,16 +6,17 @@ import (
 	"net/http"
 	"strconv"
 
+	"git.amocrm.ru/study_group/in_memory_database/internal/controller"
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 	"github.com/gorilla/mux"
 )
 
 type AccountHandler struct {
-	usecase AccountUsecaseInterface
+	usecase controller.AccountUsecaseInterface
 }
 
-func NewAccountHandler(usecase AccountUsecaseInterface) *AccountHandler {
+func NewAccountHandler(usecase controller.AccountUsecaseInterface) *AccountHandler {
 	return &AccountHandler{usecase: usecase}
 }
 
