@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"git.amocrm.ru/study_group/in_memory_database/internal/controller/http/v1"
+	"git.amocrm.ru/study_group/in_memory_database/internal/provider"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/account_integrations"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/accounts"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/contacts"
@@ -18,6 +19,7 @@ import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/account_integration"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/amo_client"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/contact"
+	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/unisender"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
 )
 
@@ -30,18 +32,21 @@ func main() {
 
 	httpClient := &http.Client{Timeout: 20 * time.Second}
 	amoClient := amocrm.NewAMOClient(httpClient)
+	unisenderProvider := provider.NewUnisenderProvider()
 
 	accountService := account.NewAccountUsecase(accountsRepo)
 	integrationService := account_integration.NewAccountInegrationUsecase(integrationsRepo)
 	contactService := contact.NewContactUsecase(contactsRepo)
 	amoClientService := amo_client.NewAmoClientServiceService(amoClient, accountsRepo)
+	unisenderService := unisender.NewUnisenderService(accountsRepo, contactsRepo, unisenderProvider)
 
 	accountHandler := v1.NewAccountHandler(accountService)
 	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
 	contactHandler := v1.NewContactHandler(contactService)
 	amoClientHandler := v1.NewAmoClientHandler(amoClientService)
+	unisenderHandler := v1.NewUnisenderHandler(unisenderService)
 
-	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler, amoClientHandler)
+	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler, amoClientHandler, unisenderHandler)
 	router := v1.NewRouter(handler)
 
 	addr := "localhost:8080"

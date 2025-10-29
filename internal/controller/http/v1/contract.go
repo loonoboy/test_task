@@ -33,3 +33,8 @@ type ContactsUsecaseInterface interface {
 	UpdateContact(id int, contact dto.UpdateContact) error
 	DeleteContact(id int) error
 }
+
+type UnisenderUsecaseInterface interface {
+	SaveUnisenderKey(id int, update dto.UpdateAccount) error
+	SaveExistingContacts(accountID int) error
+}

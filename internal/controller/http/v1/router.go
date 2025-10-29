@@ -31,5 +31,7 @@ func NewRouter(handler *Handler) *mux.Router {
 
 	api.HandleFunc("/auth/callback", handler.AmoClient.SaveAccountInfo).Methods(http.MethodGet)
 
+	api.HandleFunc("/", handler.Unisender.SynchronizationContacts).Methods(http.MethodPost)
+
 	return r
 }

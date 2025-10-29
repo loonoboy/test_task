@@ -29,3 +29,8 @@ type ContactRepository interface {
 	UpdateContact(id int, update dto.UpdateContact) error
 	DeleteContact(id int) error
 }
+
+type UnisenderProvider interface {
+	CreateOrGetList(piKey, listName string) (int, error)
+	ImportContacts(apiKey string, amoListID int, contacts []*entity.Contact) error
+}

@@ -45,11 +45,17 @@ func (s *ContactsUsecase) GetContact(id int) (*entity.Contact, error) {
 }
 
 func (s *ContactsUsecase) ListContacts(id int) ([]*entity.Contact, error) {
-	accounts, err := s.repo.ListContacts(id)
+	contacts, err := s.repo.ListContacts(id)
 	if err != nil {
 		return nil, err
 	}
-	return accounts, nil
+	var result []*entity.Contact
+	for _, contact := range contacts {
+		if s.validateContact(*contact) != nil {
+			result = append(result, contact)
+		}
+	}
+	return result, nil
 }
 
 func (s *ContactsUsecase) UpdateContact(id int, update dto.UpdateContact) error {
