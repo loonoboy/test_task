@@ -11,6 +11,7 @@ services:
       - api:/usr/src/app/
     depends_on:
       - fullstack-mysql
+      - beanstalkd
     networks:
       - fullstack
 
@@ -46,6 +47,19 @@ services:
     restart: on-failure
     networks:
       - fullstack
+
+  beanstalkd:
+    container_name: ddev-beanstalkd
+    image: schickling/beanstalkd
+    restart: "no"
+    expose:
+      - 11300 # beanstalkd доступен через этот порт внутри контейнера (порт по умолчанию для beanstalkd)
+    ports:
+      - 11300:11300
+    labels:
+      com.ddev.site-name: "sitename"
+    volumes:
+      - ".:/mnt/ddev_config"
 
 
 volumes:
