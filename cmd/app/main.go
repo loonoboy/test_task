@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"git.amocrm.ru/study_group/in_memory_database/internal/controller/grpc/proto"
+	"git.amocrm.ru/study_group/in_memory_database/internal/controller/grpc/server"
 	"git.amocrm.ru/study_group/in_memory_database/internal/controller/http/v1"
 	"git.amocrm.ru/study_group/in_memory_database/internal/provider"
 	"git.amocrm.ru/study_group/in_memory_database/internal/repository/mysql/account_integrations"
@@ -21,6 +24,7 @@ import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/contact"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/unisender"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -39,6 +43,10 @@ func main() {
 	contactService := contact.NewContactUsecase(contactsRepo)
 	amoClientService := amo_client.NewAmoClientServiceService(amoClient, accountsRepo)
 	unisenderService := unisender.NewUnisenderService(accountsRepo, contactsRepo, unisenderProvider)
+
+	gserver := grpc.NewServer()
+	gRPCServerStruct := server.NewGRPCServer(accountService)
+	proto.RegisterDeleteAccountServiceServer(gserver, gRPCServerStruct)
 
 	accountHandler := v1.NewAccountHandler(accountService)
 	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
@@ -63,6 +71,16 @@ func main() {
 		log.Printf("API service starting at %s\n", addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server failed: %v", err)
+		}
+	}()
+
+	go func() {
+		l, err := net.Listen("tcp", ":50051")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := gserver.Serve(l); err != nil {
+			log.Fatal(err)
 		}
 	}()
 

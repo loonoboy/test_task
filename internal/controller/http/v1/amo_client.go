@@ -3,14 +3,15 @@ package v1
 import (
 	"net/http"
 
+	"git.amocrm.ru/study_group/in_memory_database/internal/controller"
 	"github.com/google/uuid"
 )
 
 type AmoClientHandler struct {
-	usecase AmoClientUsecaseInterface
+	usecase controller.AmoClientUsecaseInterface
 }
 
-func NewAmoClientHandler(usecase AmoClientUsecaseInterface) *AmoClientHandler {
+func NewAmoClientHandler(usecase controller.AmoClientUsecaseInterface) *AmoClientHandler {
 	return &AmoClientHandler{usecase: usecase}
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"git.amocrm.ru/study_group/in_memory_database/internal/controller"
 	"git.amocrm.ru/study_group/in_memory_database/internal/entity"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 	"github.com/google/uuid"
@@ -11,10 +12,10 @@ import (
 )
 
 type AccountIntegrationHandler struct {
-	usecase AccountIntegrationUsecaseInterface
+	usecase controller.AccountIntegrationUsecaseInterface
 }
 
-func NewAccountIntegrationHandler(usecase AccountIntegrationUsecaseInterface) *AccountIntegrationHandler {
+func NewAccountIntegrationHandler(usecase controller.AccountIntegrationUsecaseInterface) *AccountIntegrationHandler {
 	return &AccountIntegrationHandler{usecase: usecase}
 }
 
