@@ -1,6 +1,11 @@
 package amo_client
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase"
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 	"git.amocrm.ru/study_group/in_memory_database/pkg/amocrm"
@@ -66,5 +71,39 @@ func (s *AmoClientService) SaveAccountInfo(authCode, subdomain string, clientID 
 			return err
 		}
 	}
+	return nil
+}
+
+func (s *AmoClientService) RegisterWebHook(id int, webHookURL, subdomain string) error {
+	var set []string
+	set = append(set, "add_contact", "update_contact", "delete_contact")
+	req := &dto.RegisterWebHookRequest{
+		Destination: webHookURL,
+		Settings:    set,
+		Sort:        10,
+	}
+	body, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+
+	accInfo, err := s.accRepo.GetAccount(id)
+	if err != nil {
+		return err
+	}
+	reqUrl := fmt.Sprintf("https://%v/api/v4/webhooks", subdomain)
+	httpReq, err := http.NewRequest("POST", reqUrl, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+
+	httpReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accInfo.AccessToken))
+	httpReq.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
 	return nil
 }

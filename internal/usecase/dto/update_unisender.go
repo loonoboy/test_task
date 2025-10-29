@@ -7,3 +7,9 @@ type Lists struct {
 type GetListResponse struct {
 	Result []Lists `json:"result"`
 }
+
+type RegisterWebHookRequest struct {
+	Destination string   `json:"destination"`
+	Settings    []string `json:"settings"`
+	Sort        int      `json:"sort"`
+}

@@ -22,8 +22,8 @@ func NewConnectMySQL() *gorm.DB {
 
 	var db *gorm.DB
 	var err error
-	maxAttempts := 10
-	delay := 3 * time.Second
+	maxAttempts := 5
+	delay := 1 * time.Second
 
 	for i := 1; i <= maxAttempts; i++ {
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})

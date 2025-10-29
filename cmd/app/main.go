@@ -57,8 +57,8 @@ func main() {
 	accountHandler := v1.NewAccountHandler(accountService)
 	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
 	contactHandler := v1.NewContactHandler(contactService)
-	amoClientHandler := v1.NewAmoClientHandler(amoClientService)
-	unisenderHandler := v1.NewUnisenderHandler(unisenderService, queue)
+	amoClientHandler := v1.NewAmoClientHandler(amoClientService, queue)
+	unisenderHandler := v1.NewUnisenderHandler(unisenderService, queue, amoClientService)
 
 	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler, amoClientHandler, unisenderHandler)
 	router := v1.NewRouter(handler)
@@ -81,6 +81,7 @@ func main() {
 	}()
 
 	go func() {
+		log.Print("GRPC service starting at 50051")
 		l, err := net.Listen("tcp", ":50051")
 		if err != nil {
 			log.Fatal(err)
