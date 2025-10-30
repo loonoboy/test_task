@@ -38,6 +38,8 @@ type ContactsUsecaseInterface interface {
 type UnisenderUsecaseInterface interface {
 	SaveUnisenderKey(id int, update dto.UpdateAccount) error
 	SaveExistingContacts(accountID int) error
+	MakeSyncContacts(id int)
+	DeleteContact(email string, id int)
 }
 
 type QueueInterface interface {

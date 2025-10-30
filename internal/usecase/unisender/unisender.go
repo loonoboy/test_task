@@ -73,3 +73,61 @@ func (u *UnisenderService) SaveUnisenderKey(id int, update dto.UpdateAccount) er
 	}
 	return nil
 }
+
+func (s *UnisenderService) MakeSyncContacts(id int) error {
+	account, err := s.AccountRepo.GetAccount(id)
+	if err != nil {
+		return fmt.Errorf("get account: %w", err)
+	}
+
+	apiKey := account.UnisenderKey
+	if apiKey == "" {
+		return fmt.Errorf("account %d has no UniSender API key", id)
+	}
+
+	contacts, err := s.ContactRepo.ListNotSyncedContacts(account.AccountID)
+	if err != nil {
+		return fmt.Errorf("list not synced contacts: %w", err)
+	}
+	if len(contacts) == 0 {
+	}
+
+	listName := fmt.Sprintf("amo_account_%d", account.AccountID)
+	listID, err := s.Provider.CreateOrGetList(apiKey, listName)
+	if err != nil {
+		return fmt.Errorf("create or get UniSender list: %w", err)
+	}
+
+	if err := s.Provider.ImportContacts(apiKey, listID, contacts); err != nil {
+		return fmt.Errorf("import contacts to UniSender: %w", err)
+	}
+
+	if err := s.markContactsSynced(account.AccountID, contacts); err != nil {
+		return fmt.Errorf("mark contacts synced: %w", err)
+	}
+
+	return nil
+}
+
+func (s *UnisenderService) DeleteContact(email string, id int) error {
+	account, err := s.AccountRepo.GetAccount(id)
+	if err != nil {
+		return fmt.Errorf("get account: %w", err)
+	}
+
+	apiKey := account.UnisenderKey
+	if apiKey == "" {
+		return fmt.Errorf("account %d has no UniSender API key", id)
+	}
+
+	listName := fmt.Sprintf("amo_account_%d", account.AccountID)
+	listID, err := s.Provider.CreateOrGetList(apiKey, listName)
+	if err != nil {
+		return fmt.Errorf("create or get UniSender list: %w", err)
+	}
+
+	if err := s.Provider.ExcludeContact(apiKey, email, listID); err != nil {
+		return fmt.Errorf("exclude contact: %w", err)
+	}
+	return nil
+}

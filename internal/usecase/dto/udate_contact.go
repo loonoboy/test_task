@@ -7,3 +7,7 @@ type UpdateContact struct {
 	Email     *string `json:"email" validate:"required"`
 	IsSynced  bool    `json:"is_synced"`
 }
+
+type DeleteContactRequest struct {
+	ContactID int `json:"contact_id"`
+}

@@ -54,3 +54,13 @@ func (d *ContactRepoMySQL) UpdateContact(id int, update dto.UpdateContact) error
 func (d *ContactRepoMySQL) DeleteContact(id int) error {
 	return d.db.Where("contact_id = ?", id).Delete(entity.Contact{}).Error
 }
+
+func (d *ContactRepoMySQL) ListNotSyncedContacts(id int) ([]*entity.Contact, error) {
+	var contacts []*entity.Contact
+	if err := d.db.Where("account_id = ? AND is_synced = ?", id, false).
+		Find(&contacts).
+		Error; err != nil {
+		return nil, err
+	}
+	return contacts, nil
+}

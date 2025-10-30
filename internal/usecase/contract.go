@@ -28,6 +28,7 @@ type ContactRepository interface {
 	ListContacts(id int) ([]*entity.Contact, error)
 	UpdateContact(id int, update dto.UpdateContact) error
 	DeleteContact(id int) error
+	ListNotSyncedContacts(id int) ([]*entity.Contact, error)
 }
 
 type UnisenderProvider interface {
