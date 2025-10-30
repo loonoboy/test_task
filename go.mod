@@ -8,6 +8,7 @@ require (
 	github.com/beanstalkd/go-beanstalk v0.2.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
+	github.com/urfave/cli/v3 v3.5.0
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.10
 	gorm.io/driver/mysql v1.6.0

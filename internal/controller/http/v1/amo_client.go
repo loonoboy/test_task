@@ -107,12 +107,19 @@ func (h *AmoClientHandler) jobCreate(values url.Values, eventType string) {
 	accountId, _ := strconv.Atoi(values.Get(fmt.Sprintf("account[id]")))
 	id, _ := strconv.Atoi(values.Get(fmt.Sprintf("contacts[%s][0][id]", eventType)))
 	name := values.Get(fmt.Sprintf("contacts[%s][0][name]", eventType))
-	email := values.Get(fmt.Sprintf("contacts[%s][0][custom_fields][0][values][0][value]", eventType))
+	i := 0
+	for i = 0; i < 2; i++ {
+		codeType := values.Get(fmt.Sprintf("contacts[%s][0][custom_fields][%v][code]", eventType, i))
+		if codeType == "EMAIL" {
+			break
+		}
+	}
+	email := values.Get(fmt.Sprintf("contacts[%s][0][custom_fields][%v][values][0][value]", eventType, i))
 	var req dto.UpdateContact
-	req.AccountID = &accountId
+	req.AccountID = accountId
 	req.ContactID = id
-	req.Name = &name
-	req.Email = &email
+	req.Name = name
+	req.Email = email
 
 	body, _ := json.Marshal(req)
 	log.Println("adding a job to create contact for account -  ", accountId)
@@ -124,12 +131,19 @@ func (h *AmoClientHandler) jobUpdate(values url.Values, eventType string) {
 	accountId, _ := strconv.Atoi(values.Get(fmt.Sprintf("account[id]")))
 	id, _ := strconv.Atoi(values.Get(fmt.Sprintf("contacts[%s][0][id]", eventType)))
 	name := values.Get(fmt.Sprintf("contacts[%s][0][name]", eventType))
-	email := values.Get(fmt.Sprintf("contacts[%s][0][custom_fields][0][values][0][value]", eventType))
+	i := 0
+	for i = 0; i < 2; i++ {
+		codeType := values.Get(fmt.Sprintf("contacts[%s][0][custom_fields][%v][code]", eventType, i))
+		if codeType == "EMAIL" {
+			break
+		}
+	}
+	email := values.Get(fmt.Sprintf("contacts[%s][0][custom_fields][%v][values][0][value]", eventType, i))
 	var req dto.UpdateContact
-	req.AccountID = &accountId
+	req.AccountID = accountId
 	req.ContactID = id
-	req.Name = &name
-	req.Email = &email
+	req.Name = name
+	req.Email = email
 
 	body, _ := json.Marshal(req)
 	log.Println("adding a job to update contact for account -  ", accountId)

@@ -54,8 +54,8 @@ func (s *UnisenderService) SaveExistingContacts(accountID int) error {
 func (s *UnisenderService) markContactsSynced(accountID int, contacts []*entity.Contact) error {
 	for _, c := range contacts {
 		upd := dto.UpdateContact{
-			AccountID: &accountID,
-			Email:     &c.Email,
+			AccountID: accountID,
+			Email:     c.Email,
 			IsSynced:  true,
 		}
 		if err := s.ContactRepo.UpdateContact(c.ContactID, upd); err != nil {
