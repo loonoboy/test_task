@@ -123,7 +123,7 @@ func (h *AmoClientHandler) jobCreate(values url.Values, eventType string) {
 
 	body, _ := json.Marshal(req)
 	log.Println("adding a job to create contact for account -  ", accountId)
-	if h.queue.AddJob(body, "contact") != nil {
+	if h.queue.AddJob(body, "create_contact") != nil {
 		log.Fatal("error adding job")
 	}
 }
@@ -147,7 +147,7 @@ func (h *AmoClientHandler) jobUpdate(values url.Values, eventType string) {
 
 	body, _ := json.Marshal(req)
 	log.Println("adding a job to update contact for account -  ", accountId)
-	if h.queue.AddJob(body, "contact") != nil {
+	if h.queue.AddJob(body, "update_contact") != nil {
 		log.Fatal("error adding job")
 	}
 }
@@ -156,7 +156,7 @@ func (h *AmoClientHandler) jobDelete(values url.Values, eventType string) {
 
 	body, _ := json.Marshal(map[string]int{"id": id})
 	log.Println("adding a job to delete contact -  ", id)
-	if h.queue.AddJob(body, "contact") != nil {
+	if h.queue.AddJob(body, "delete_contact") != nil {
 		log.Fatal("error adding job")
 	}
 }
