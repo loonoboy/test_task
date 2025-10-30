@@ -7,6 +7,9 @@ services:
       - 8080:8080
       - 50051:50051
     restart: on-failure
+    env_file:
+      - .env
+
     volumes:
       - api:/usr/src/app/
     depends_on:
@@ -53,13 +56,16 @@ services:
     image: schickling/beanstalkd
     restart: "no"
     expose:
-      - 11300 # beanstalkd доступен через этот порт внутри контейнера (порт по умолчанию для beanstalkd)
+      - 11300
     ports:
       - 11300:11300
     labels:
       com.ddev.site-name: "sitename"
     volumes:
       - ".:/mnt/ddev_config"
+    networks:
+      - fullstack
+
 
 
 volumes:

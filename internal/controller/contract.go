@@ -24,6 +24,7 @@ type AccountIntegrationUsecaseInterface interface {
 
 type AmoClientUsecaseInterface interface {
 	SaveAccountInfo(authCode, subdomain string, clientID uuid.UUID) error
+	RegisterWebHook(id int, webHookURL, subdomain string) error
 }
 
 type ContactsUsecaseInterface interface {

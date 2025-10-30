@@ -11,19 +11,24 @@ import (
 	"git.amocrm.ru/study_group/in_memory_database/internal/usecase/dto"
 )
 
+const webHookURL = "https://ab5319a02227.ngrok-free.app/webhook"
+
 type UnisenderHandler struct {
-	usecase controller.UnisenderUsecaseInterface
-	queue   controller.QueueInterface
+	usecase   controller.UnisenderUsecaseInterface
+	queue     controller.QueueInterface
+	amoClient controller.AmoClientUsecaseInterface
 }
 
-func NewUnisenderHandler(usecase controller.UnisenderUsecaseInterface, queue controller.QueueInterface) *UnisenderHandler {
+func NewUnisenderHandler(usecase controller.UnisenderUsecaseInterface, queue controller.QueueInterface,
+	amoClient controller.AmoClientUsecaseInterface) *UnisenderHandler {
 	return &UnisenderHandler{
-		usecase: usecase,
-		queue:   queue,
+		usecase:   usecase,
+		queue:     queue,
+		amoClient: amoClient,
 	}
 }
 
-func (h *UnisenderHandler) SynchronizationContacts(w http.ResponseWriter, r *http.Request) {
+func (h *UnisenderHandler) Initialization(w http.ResponseWriter, r *http.Request) {
 	var update dto.UpdateAccount
 
 	if err := r.ParseForm(); err != nil {
@@ -37,17 +42,31 @@ func (h *UnisenderHandler) SynchronizationContacts(w http.ResponseWriter, r *htt
 	if idStr != "" {
 		AccountID, _ = strconv.Atoi(idStr)
 	}
-	body, _ := json.Marshal(map[string]int{"account_id": AccountID})
-	log.Println("adding a job for first sync for account ", AccountID)
-	if h.queue.AddJob(body, "first_sync") != nil {
-		log.Fatal("error adding job")
-	}
+
 	err := h.usecase.SaveUnisenderKey(AccountID, update)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	body, _ := json.Marshal(map[string]int{"account_id": AccountID})
+	log.Println("adding a job for first sync for account ", AccountID)
+	if h.queue.AddJob(body, "first_sync") != nil {
+		log.Fatal("error adding job")
+	}
 
-	h.usecase.SaveExistingContacts(AccountID)
+	err = h.usecase.SaveExistingContacts(AccountID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Println("First sync done")
+
+	domain := r.URL.Query().Get("referer")
+
+	err = h.amoClient.RegisterWebHook(AccountID, webHookURL, domain)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }

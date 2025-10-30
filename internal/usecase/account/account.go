@@ -30,9 +30,6 @@ func (s *AccountUsecase) validateAccount(account entity.Account) error {
 }
 
 func (s *AccountUsecase) CreateAccount(i entity.Account) error {
-	if err := s.validateAccount(i); err != nil {
-		return err
-	}
 	if _, err := s.repo.GetAccount(i.AccountID); err == nil {
 		return fmt.Errorf("account with ID %v already exists", i.AccountID)
 	}

@@ -42,7 +42,7 @@ func main() {
 	accountService := account.NewAccountUsecase(accountsRepo)
 	integrationService := account_integration.NewAccountInegrationUsecase(integrationsRepo)
 	contactService := contact.NewContactUsecase(contactsRepo)
-	amoClientService := amo_client.NewAmoClientServiceService(amoClient, accountsRepo)
+	amoClientService := amo_client.NewAmoClientServiceService(amoClient, accountsRepo, integrationsRepo, contactsRepo)
 	unisenderService := unisender.NewUnisenderService(accountsRepo, contactsRepo, unisenderProvider)
 
 	gserver := grpc.NewServer()
@@ -57,21 +57,18 @@ func main() {
 	accountHandler := v1.NewAccountHandler(accountService)
 	integrationHandler := v1.NewAccountIntegrationHandler(integrationService)
 	contactHandler := v1.NewContactHandler(contactService)
-	amoClientHandler := v1.NewAmoClientHandler(amoClientService)
-	unisenderHandler := v1.NewUnisenderHandler(unisenderService, queue)
+	amoClientHandler := v1.NewAmoClientHandler(amoClientService, queue)
+	unisenderHandler := v1.NewUnisenderHandler(unisenderService, queue, amoClientService)
 
 	handler := v1.NewHandler(accountHandler, integrationHandler, contactHandler, amoClientHandler, unisenderHandler)
 	router := v1.NewRouter(handler)
 
-	addr := "localhost:8080"
+	addr := ":8080"
 
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: router,
 	}
-
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		log.Printf("API service starting at %s\n", addr)
@@ -81,6 +78,7 @@ func main() {
 	}()
 
 	go func() {
+		log.Print("GRPC service starting at 50051")
 		l, err := net.Listen("tcp", ":50051")
 		if err != nil {
 			log.Fatal(err)
@@ -90,6 +88,8 @@ func main() {
 		}
 	}()
 
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	<-stop
 	log.Println("Shutting down server...")
 
