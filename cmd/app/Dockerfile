@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine as builder
+FROM golang:alpine as builder
 
 LABEL maintainer="amoCRM"
 
@@ -10,7 +10,7 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 
-COPY ../.. .
+COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o main ./cmd/app/main.go
 

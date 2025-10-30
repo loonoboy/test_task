@@ -1,31 +1,21 @@
-FROM golang:1.24-alpine as builder
-
+FROM golang:alpine as builder
 LABEL maintainer="amoCRM"
-
-RUN apk add --no-cache git
-
+RUN apk update && apk add --no-cache git
 WORKDIR /app
-
 COPY go.mod go.sum ./
-
 RUN go mod download
-
-COPY ../.. .
-
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -o manager ./cmd/manager
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -o worker ./cmd/workers
-
-
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -installsuffix cgo -o manager ./cmd/manager
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -installsuffix cgo -o worker ./cmd/workers
+# Начните новый этап с нуля
 FROM alpine:latest
-
 RUN apk --no-cache add ca-certificates
-
 WORKDIR /root/
-
 COPY --from=builder /app/manager .
 COPY --from=builder /app/worker .
 COPY --from=builder /app/.env .
 
-RUN chmod +x /root/manager /root/worker
+RUN chmod +x manager
 
-CMD ["/root/manager", "-c", "2"]
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["/root/manager -c 3"]
